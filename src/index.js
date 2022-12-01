@@ -1,61 +1,45 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createStore } from 'redux';
-
-const initialState = {value: 0, strin: 234};
-
-const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    case 'INC':
-      return {
-        ...state, // взяли предыдущий стейт, развернули его
-        value: state.value + 1 // изменили то что нам нужно
-      };
-    case 'DEC':
-    return {
-      ...state,
-      value: state.value - 1
-    };
-    case 'RND':
-    return {
-      ...state,
-      value: state.value * action.payload
-    };
-    default:
-      return state;
-  }
-}
+import { createStore, bindActionCreators } from 'redux';
+import reducer from './reducer';
+import * as actions from './actions'
 
 const store = createStore(reducer)
 
-const inc = () => ({type: 'INC'})
-const dec = () => ({type: 'DEC'})
-const rnd = value => ({type: 'RND', payload: value})
+const {dispatch, subscribe, getState} = store;
 
 const update = () => {
-  document.querySelector('#counter').textContent = store.getState().value
+  document.querySelector('#counter').textContent = getState().value
 }
 
-store.subscribe(update)
+subscribe(update)
 
-document.querySelector('#inc').addEventListener('click', () => {
-  store.dispatch(inc());
-})
+// custom creater
+// const bindActoinCreator = (creator, dispatch) => (...args) => {
+//   dispatch(creator(...args))
+// }
 
-document.querySelector('#dec').addEventListener('click', () => {
-  store.dispatch(dec());
-})
+// of reduce
+// bindActionCreators
+
+// const {incDispatch, decDispatch, rndDispatch} = bindActionCreators({
+//   incDispatch: inc,
+//   decDispatch: dec,
+//   rndDispatch: rnd
+// }, dispatch)
+const {inc, dec, rnd} = bindActionCreators(actions, dispatch)
+
+// const decDispatch = bindActionCreators(dec, dispatch)
+// const rndDispatch = bindActionCreators(rnd, dispatch)
+
+document.querySelector('#inc').addEventListener('click', inc)
+
+document.querySelector('#dec').addEventListener('click', dec)
 
 document.querySelector('#rnd').addEventListener('click', () => {
   const value = Math.floor(Math.random() * 10)
-  store.dispatch(rnd(value));
+  rnd(value)
 })
-
-// let state = reducer(initialState, {type: 'INC'})
-// state = reducer(state, {type: 'INC'})
-// state = reducer(state, {type: 'INC'})
-// state = reducer(state, {type: 'INC'})
-// console.log(state)
 
 ReactDOM.render(
   <React.StrictMode>
